@@ -1,7 +1,7 @@
 <div class="place">
     <div class="place__header">
         <div class="place__header-info">
-            <img class="place__img-logo" ng-src="http://localhost/files/logoProfile/{{place.vars.dataPub.logoPath}}">
+            <img class="place__img-logo" ng-src="https:/rhinozapp.herokuapp.com/files/logoProfile/{{place.vars.dataPub.logoPath}}">
             <div class="place__name">{{place.vars.dataPub.name}} </div>
             <a class="place__icon" ui-sref="user.mainList">
                 <i class="fa fa-arrow-left"></i>
@@ -17,7 +17,7 @@
                 </li>
             </ul>
         </div>
-        <img class="place__img-bar" ng-src="http://localhost/files/headerImgProfile/{{place.vars.dataPub.headerImgPath}}" alt="he">
+        <img class="place__img-bar" ng-src="https:/rhinozapp.herokuapp.com/files/headerImgProfile/{{place.vars.dataPub.headerImgPath}}" alt="he">
     </div>
 
     <ul class="place__socials">
@@ -65,7 +65,7 @@
                  ng-repeat="data in place.vars.listPromotion | filter:{productName : place.vars.search, value: place.vars.search, promotionValue: place.vars.search}:false">
                 <div class="bars__info-logo">
                     <div class="bars__info-img">
-                        <img ng-if="data.imgPath" ng-src="http://localhost/files/imgProducts/{{data.imgPath}}">
+                        <img ng-if="data.imgPath" ng-src="https:/rhinozapp.herokuapp.com/files/imgProducts/{{data.imgPath}}">
                     </div>
                     <p class="bars__info-name">
                         {{data.productName}}
@@ -92,7 +92,7 @@
                 <div class="bars__list" ng-repeat="data2 in data.products | filter:{productName : place.vars.search, value: place.vars.search, promotionValue: place.vars.search}:false">
                     <div class="bars__info-logo">
                         <div class="bars__info-img">
-                            <img ng-if="data2.imgPath" ng-src="http://localhost/files/imgProducts/{{data2.imgPath}}">
+                            <img ng-if="data2.imgPath" ng-src="https:/rhinozapp.herokuapp.com/files/imgProducts/{{data2.imgPath}}">
                         </div>
                         <p class="bars__info-name">
                             {{data2.productName}}
