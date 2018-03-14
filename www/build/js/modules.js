@@ -201,7 +201,6 @@ function login(loginService, $window, toastAction) {
 
         loginGoogle : function () {
             loginService.doLoginGoogle().then(function (data) {
-                alert(data.data);
                 if(data.status){
                     loginService.recordData.save(data.data, function (result) {
                         switch (true){
@@ -297,7 +296,7 @@ function loginService($window, dialogAlert, $resource, defineHost, $cordovaOauth
                     {
                         'scopes': '',
                         'webClientId': '675857416832-gkkntadhdgbjs8o19akb071ho7stguki.apps.googleusercontent.com',
-                        'offline': false
+                        'offline': true
                     },
                     function (obj) {
                         success({
@@ -306,7 +305,6 @@ function loginService($window, dialogAlert, $resource, defineHost, $cordovaOauth
                         });
                     },
                     function (msg) {
-                        console.log(msg);
                         success({
                             status : false,
                             data : msg
@@ -402,6 +400,8 @@ function mainListController(loginService, getCoordinates, mainListService, haver
         getList : {
             getNear : function () {
                 mainList.vars.nearLocal = 'Próximos à seu local.';
+                mainList.vars.latSearch = mainList.vars.lat;
+                mainList.vars.longSearch = mainList.vars.long;
                 mainListService.getListPubs.save({
                     lat : mainList.vars.lat,
                     long : mainList.vars.long
@@ -409,18 +409,23 @@ function mainListController(loginService, getCoordinates, mainListService, haver
             },
 
             getLocal : function () {
-                if(typeof mainList.vars.searchLocal === "object"){
-                    mainList.vars.nearLocal = 'Próximos à' + mainList.vars.searchLocal.formatted_address;
+                if(mainList.vars.geo.getPlace() && mainList.vars.searchLocal.length > 0){
+                    mainList.vars.list = [];
+                    mainList.vars.latSearch = mainList.vars.geo.getPlace().geometry.location.lat();
+                    mainList.vars.longSearch = mainList.vars.geo.getPlace().geometry.location.lng();
+                    mainList.vars.nearLocal = 'Próximos à ' + mainList.vars.searchLocal;
                     mainList.vars.search = '';
                     mainListService.getListPubs.save({
-                        lat : mainList.vars.searchLocal.geometry.location.lat(),
-                        long : mainList.vars.searchLocal.geometry.location.lng()
+                        lat : mainList.vars.geo.getPlace().geometry.location.lat(),
+                        long : mainList.vars.geo.getPlace().geometry.location.lng()
                     }, mainList.functions.getList.success);
                 }
             },
 
             getFavorite : function () {
                 mainList.vars.nearLocal = 'Seus favoritos.';
+                mainList.vars.latSearch = mainList.vars.lat;
+                mainList.vars.longSearch = mainList.vars.long;
                 mainListService.getListPubsFavorites.save({
                     userID : getProfile.id
                 }, mainList.functions.getList.success);
@@ -428,14 +433,6 @@ function mainListController(loginService, getCoordinates, mainListService, haver
 
             success : function (data) {
                 mainList.vars.list = data.data;
-
-                if(mainList.vars.lat){
-                    mainList.vars.latSearch = mainList.vars.lat;
-                    mainList.vars.longSearch = mainList.vars.long;
-                }else{
-                    mainList.vars.latSearch = mainList.vars.searchLocal.geometry.location.lat();
-                    mainList.vars.longSearch = mainList.vars.searchLocal.geometry.location.lng();
-                }
 
                 angular.forEach(mainList.vars.list, function (value) {
                     //region Distance
