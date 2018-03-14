@@ -5,7 +5,7 @@ angular
             getData : function (zipCode) {
                 return new Promise((success => {
                     var results;
-                    return $http.get('http://maps.google.com/maps/api/geocode/json?address='+zipCode).then(function (response) {
+                    return $http.get('https://maps.google.com/maps/api/geocode/json?address='+zipCode).then(function (response) {
                         if (response.data.status === 'OK') {
                             results = {
                                 lat : response.data.results[0].geometry.location.lat,

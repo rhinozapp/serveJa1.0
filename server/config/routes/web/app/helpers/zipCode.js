@@ -41,7 +41,7 @@ exports.zipCode = function (req, res) {
                 let results;
                 return request({
                     method: 'GET',
-                    url: 'http://maps.google.com/maps/api/geocode/json?address='+zipCode,
+                    url: 'https://maps.google.com/maps/api/geocode/json?address='+zipCode,
                 }, function (error, response, body) {
                     if (error){
                         results = {
