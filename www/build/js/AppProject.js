@@ -43,275 +43,6 @@ angular.module('core', [
 })();
 (function(){
 "use strict";
-angular
-    .module('core')
-    .directive('googleplace', function() {
-        return {
-            require: 'ngModel',
-            replace: true,
-            scope: {
-                ngModel: '=',
-                geo: '=',
-                onSelect: '&?'
-            },
-            link: function(scope, element, attrs, model) {
-                var autocomplete = new google.maps.places.Autocomplete(element[0], {
-                    types: [],
-                    componentRestrictions: {
-                        country: 'br'
-                    }
-                });
-
-                scope.geo = autocomplete;
-                google.maps.event.addListener(autocomplete, 'place_changed', function() {
-                    scope.$apply(function() {
-                        model.$setViewValue(element.val());
-                    });
-                });
-            }
-        };
-    });
-})();
-(function(){
-"use strict";
-angular
-    .module('core')
-    .service('defineHost', function () {
-        return {
-            host : 'https:/rhinozapp.herokuapp.com'
-        };
-    });
-})();
-(function(){
-"use strict";
-angular
-    .module('core')
-    .service('externalLink', function () {
-        return {
-            open : function (option) {
-                window.open(option.url, option.target, 'location='+option.location);
-            }
-        };
-    });
-})();
-(function(){
-"use strict";
-angular
-    .module('core')
-    .service('getCoordinates', function () {
-        return {
-            getPos : function () {
-                return new Promise(function (success) {
-                    if(window.navigator && window.navigator.geolocation){
-                        window.navigator.geolocation.getCurrentPosition(function (data) {
-                            success({
-                                lat : data.coords.latitude,
-                                long : data.coords.longitude
-                            });
-                        }, function () {
-                            success({
-                                lat : '-23.533773',
-                                long : '-46.625290'
-                            });
-                        }, {
-                            enableHighAccuracy: true,
-                            maximumAge: 0
-                        });
-                    }else{
-                        success({
-                            lat : '-23.533773',
-                            long : '-46.625290'
-                        });
-                    }
-                });
-            }
-        }
-    });
-})();
-(function(){
-"use strict";
-angular
-    .module('core')
-    .service('getProfile', function ($window, jwtHelper) {
-        if($window.localStorage.token){
-            var profile = jwtHelper.decodeToken($window.localStorage.token);
-            return {
-                id : profile.id,
-                emailFace: profile.emailFace,
-                emailGoogle: profile.emailGoogle,
-                name : profile.name,
-                photo : profile.photo,
-                tokenFace : profile.tokenFace,
-                tokenGoogle : profile.tokenGoogle,
-                idFace : profile.idFace,
-                idGoogle : profile.idGoogle,
-                status : true
-            }
-        }else{
-            return {
-                status : false
-            }
-        }
-
-    });
-})();
-(function(){
-"use strict";
-angular
-    .module('core')
-    .service('getRequestStatus', function ($resource, defineHost) {
-        return {
-            checkRequestStatus : $resource(defineHost.host + '/app/checkRequestStatus')
-        }
-    });
-})();
-(function(){
-"use strict";
-/**
- * Created by guilherme.assis on 02/12/2016.
- */
-angular
-    .module('core')
-    .service('dialogAlert', function ($mdDialog) {
-        return {
-            show: function(option){
-                $mdDialog.show(
-                    $mdDialog.alert()
-                        .parent(angular.element(document.body))
-                        .clickOutsideToClose(true)
-                        .title(option.title)
-                        .textContent(option.content)
-                        .ariaLabel('dialog')
-                        .ok(option.ok)
-                )
-            }
-        };
-    })
-    .service('dialogAdvanced', function ($mdMedia, $mdDialog) {
-        return {
-            show : function (options) {
-                var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'));
-                $mdDialog.show({
-                    controller: options.controller,
-                    controllerAs: options.controllerAs,
-                    templateUrl: options.templateUrl,
-                    parent: angular.element(document.body),
-                    clickOutsideToClose:options.clickOutsideToClose,
-                    fullscreen: useFullScreen,
-                    locals : {
-                        data : options.dataToDialog
-                    }
-                }).then(options.functionThen);
-            },
-
-            cancel : function () {
-                $mdDialog.cancel();
-            },
-
-            hide : function (result) {
-                $mdDialog.hide(result);
-            }
-        }
-    })
-    .service('dialogConfirm', function ($mdDialog) {
-        return {
-            show : function (options) {
-                var confirm = $mdDialog.confirm()
-                    .title(options.title)
-                    .textContent(options.textContent)
-                    .ariaLabel('confirm')
-                    .ok(options.ok)
-                    .cancel(options.cancel);
-
-                $mdDialog.show(confirm).then(options.confirmFunction, options.cancelFunction);
-            }
-        }
-    });
-})();
-(function(){
-"use strict";
-/**
- * Created by guilherme.assis on 06/12/2016.
- */
-
-angular
-    .module('core')
-    .service('toastAction', function ($mdToast) {
-        return {
-            show: function(option){
-                var last = {
-                    bottom: option.bottom,
-                    top: option.top,
-                    left: option.left,
-                    right: option.right
-                };
-
-                option.scope.toastPosition = angular.extend({},last);
-
-                function sanitizePosition() {
-                    var current = option.scope.toastPosition;
-
-                    if ( current.bottom && last.top ) current.top = false;
-                    if ( current.top && last.bottom ) current.bottom = false;
-                    if ( current.right && last.left ) current.left = false;
-                    if ( current.left && last.right ) current.right = false;
-
-                    last = angular.extend({},current);
-                }
-
-
-                option.scope.getToastPosition = function() {
-                    sanitizePosition();
-
-                    return Object.keys(option.scope.toastPosition)
-                        .filter(function(pos) { return option.scope.toastPosition[pos]; })
-                        .join(' ');
-                };
-
-
-                var pin = option.scope.getToastPosition();
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent(option.text)
-                        .position(pin)
-                        .hideDelay(3000)
-                );
-            }
-        };
-    });
-})();
-(function(){
-"use strict";
-angular
-    .module('core')
-    .service('saveLastAction', function ($window) {
-        return {
-            save: function(obj) {
-                $window.localStorage.lastAction = JSON.stringify(obj);
-            },
-
-            get : function () {
-                var lastAction = {};
-                if($window.localStorage.lastAction){
-                    lastAction = JSON.parse($window.localStorage.lastAction);
-                }else{
-                    lastAction = {};
-                }
-
-                return {
-                    lastAction : lastAction
-                };
-            },
-
-            clear : function () {
-                $window.localStorage.lastAction = null;
-                $window.location.reload();
-            }
-        };
-    });
-})();
-(function(){
-"use strict";
 /**
  * Created by Guilherme Assis on 19/09/2016.
  */
@@ -522,6 +253,276 @@ angular
         $mdThemingProvider.enableBrowserColor({
             hue: '200' // Default is '800'
         });
+    });
+})();
+(function(){
+"use strict";
+angular
+    .module('core')
+    .directive('googleplace', function() {
+        return {
+            require: 'ngModel',
+            replace: true,
+            scope: {
+                ngModel: '=',
+                geo: '=',
+                onSelect: '&?'
+            },
+            link: function(scope, element, attrs, model) {
+                var autocomplete = new google.maps.places.Autocomplete(element[0], {
+                    types: [],
+                    componentRestrictions: {
+                        country: 'br'
+                    }
+                });
+
+                scope.geo = autocomplete;
+                google.maps.event.addListener(autocomplete, 'place_changed', function() {
+                    scope.$apply(function() {
+                        model.$setViewValue(element.val());
+                    });
+                });
+            }
+        };
+    });
+})();
+(function(){
+"use strict";
+angular
+    .module('core')
+    .service('defineHost', function () {
+        return {
+            host : 'https:/rhinozapp.herokuapp.com'
+        };
+    });
+})();
+(function(){
+"use strict";
+angular
+    .module('core')
+    .service('externalLink', function () {
+        return {
+            open : function (option) {
+                window.open(option.url, option.target, 'location='+option.location);
+            }
+        };
+    });
+})();
+(function(){
+"use strict";
+angular
+    .module('core')
+    .service('getCoordinates', function () {
+        return {
+            getPos : function () {
+                return new Promise(function (success) {
+                    if(navigator && navigator.geolocation){
+                        navigator.geolocation.getCurrentPosition(function (data) {
+                            success({
+                                lat : data.coords.latitude,
+                                long : data.coords.longitude
+                            });
+                        }, function () {
+                            success({
+                                lat : '-23.3251',
+                                long : '-46.3810'
+                            });
+                        }, {
+                            maximumAge: 300,
+                            timeout:1000,
+                            enableHighAccuracy: true
+                        });
+                    }else{
+                        success({
+                            lat : '-23.3251',
+                            long : '-46.3810'
+                        });
+                    }
+                });
+            }
+        }
+    });
+})();
+(function(){
+"use strict";
+angular
+    .module('core')
+    .service('getProfile', function ($window, jwtHelper) {
+        if($window.localStorage.token){
+            var profile = jwtHelper.decodeToken($window.localStorage.token);
+            return {
+                id : profile.id,
+                emailFace: profile.emailFace,
+                emailGoogle: profile.emailGoogle,
+                name : profile.name,
+                photo : profile.photo,
+                tokenFace : profile.tokenFace,
+                tokenGoogle : profile.tokenGoogle,
+                idFace : profile.idFace,
+                idGoogle : profile.idGoogle,
+                status : true
+            }
+        }else{
+            return {
+                status : false
+            }
+        }
+
+    });
+})();
+(function(){
+"use strict";
+angular
+    .module('core')
+    .service('getRequestStatus', function ($resource, defineHost) {
+        return {
+            checkRequestStatus : $resource(defineHost.host + '/app/checkRequestStatus')
+        }
+    });
+})();
+(function(){
+"use strict";
+/**
+ * Created by guilherme.assis on 02/12/2016.
+ */
+angular
+    .module('core')
+    .service('dialogAlert', function ($mdDialog) {
+        return {
+            show: function(option){
+                $mdDialog.show(
+                    $mdDialog.alert()
+                        .parent(angular.element(document.body))
+                        .clickOutsideToClose(true)
+                        .title(option.title)
+                        .textContent(option.content)
+                        .ariaLabel('dialog')
+                        .ok(option.ok)
+                )
+            }
+        };
+    })
+    .service('dialogAdvanced', function ($mdMedia, $mdDialog) {
+        return {
+            show : function (options) {
+                var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'));
+                $mdDialog.show({
+                    controller: options.controller,
+                    controllerAs: options.controllerAs,
+                    templateUrl: options.templateUrl,
+                    parent: angular.element(document.body),
+                    clickOutsideToClose:options.clickOutsideToClose,
+                    fullscreen: useFullScreen,
+                    locals : {
+                        data : options.dataToDialog
+                    }
+                }).then(options.functionThen);
+            },
+
+            cancel : function () {
+                $mdDialog.cancel();
+            },
+
+            hide : function (result) {
+                $mdDialog.hide(result);
+            }
+        }
+    })
+    .service('dialogConfirm', function ($mdDialog) {
+        return {
+            show : function (options) {
+                var confirm = $mdDialog.confirm()
+                    .title(options.title)
+                    .textContent(options.textContent)
+                    .ariaLabel('confirm')
+                    .ok(options.ok)
+                    .cancel(options.cancel);
+
+                $mdDialog.show(confirm).then(options.confirmFunction, options.cancelFunction);
+            }
+        }
+    });
+})();
+(function(){
+"use strict";
+/**
+ * Created by guilherme.assis on 06/12/2016.
+ */
+
+angular
+    .module('core')
+    .service('toastAction', function ($mdToast) {
+        return {
+            show: function(option){
+                var last = {
+                    bottom: option.bottom,
+                    top: option.top,
+                    left: option.left,
+                    right: option.right
+                };
+
+                option.scope.toastPosition = angular.extend({},last);
+
+                function sanitizePosition() {
+                    var current = option.scope.toastPosition;
+
+                    if ( current.bottom && last.top ) current.top = false;
+                    if ( current.top && last.bottom ) current.bottom = false;
+                    if ( current.right && last.left ) current.left = false;
+                    if ( current.left && last.right ) current.right = false;
+
+                    last = angular.extend({},current);
+                }
+
+
+                option.scope.getToastPosition = function() {
+                    sanitizePosition();
+
+                    return Object.keys(option.scope.toastPosition)
+                        .filter(function(pos) { return option.scope.toastPosition[pos]; })
+                        .join(' ');
+                };
+
+
+                var pin = option.scope.getToastPosition();
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent(option.text)
+                        .position(pin)
+                        .hideDelay(3000)
+                );
+            }
+        };
+    });
+})();
+(function(){
+"use strict";
+angular
+    .module('core')
+    .service('saveLastAction', function ($window) {
+        return {
+            save: function(obj) {
+                $window.localStorage.lastAction = JSON.stringify(obj);
+            },
+
+            get : function () {
+                var lastAction = {};
+                if($window.localStorage.lastAction){
+                    lastAction = JSON.parse($window.localStorage.lastAction);
+                }else{
+                    lastAction = {};
+                }
+
+                return {
+                    lastAction : lastAction
+                };
+            },
+
+            clear : function () {
+                $window.localStorage.lastAction = null;
+                $window.location.reload();
+            }
+        };
     });
 })();
 (function(){

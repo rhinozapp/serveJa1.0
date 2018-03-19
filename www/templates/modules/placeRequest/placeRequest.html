@@ -1,103 +1,130 @@
-<div class="place" ng-init="placeRequest.vars.viewMenu = true">
-    <div class="content">
-        <button class="btn__default"
-                type="button"
-                ng-click="placeRequest.functions.requireClose.requireClose()">Solicitar fechamento do pedido</button>
-        <button type="button"
-                ng-click="placeRequest.vars.viewMenu = true; placeRequest.vars.viewRequests = false;">
-            Cardápio
-        </button>
-        <button type="button"
-                ng-click="placeRequest.vars.viewMenu = false; placeRequest.vars.viewRequests = true; placeRequest.functions.getListProductsRequest.getListProductsRequest()">
-            Meus pedidos feitos
-        </button>
+<div class="place content" ng-init="placeRequest.vars.viewMenu = true">
 
-        <md-button
-                ng-if="placeRequest.vars.viewMenu"
-                class="md-fab btn-float-right"
-                aria-label="refresh"
-                ng-disabled="placeRequest.vars.sendDisabled"
-                ng-click="placeRequest.functions.controlRequest.sendRequest.sendRequest()">
-            Enviar
-        </md-button>
+    <button type="button" class="btn__default" -click="placeRequest.functions.requireClose.requireClose()">Solicitar fechamento do pedido</button>
+    <button type="button" ng-click="placeRequest.vars.viewMenu = true; placeRequest.vars.viewRequests = false;">Cardápio</button>
+    <button type="button" ng-click="placeRequest.vars.viewMenu = false; placeRequest.vars.viewRequests = true; placeRequest.functions.getListProductsRequest.getListProductsRequest()">Meus pedidos feitos</button>
+    <button type="button" class="btn__send" ng-if="placeRequest.vars.viewMenu" class="md-fab btn-float-right" aria-label="refresh"
+        ng-disabled="placeRequest.vars.sendDisabled" ng-click="placeRequest.functions.controlRequest.sendRequest.sendRequest()">Enviar</button>
 
-        <section ng-if="placeRequest.vars.viewMenu">
+    <section ng-if="placeRequest.vars.viewMenu">
+        <div class="place__info">
+            <input class="input-default" ng-model="placeRequest.vars.search.$" placeholder="Procurar um produto">
 
-            <div class="place__info">
-                <input class="input-default" ng-model="placeRequest.vars.search" placeholder="Procurar um produto">
+            <div ng-if="placeRequest.vars.listPromotion.length > 0 && !placeRequest.vars.search.$">
+                <h3 class="place__category">Promoção</h3>
+            </div>
 
-                <div ng-if="placeRequest.vars.listPromotion.length > 0">
-                    <h3 class="place__category">Promoção</h3>
-                </div>
-                <div class="bars__list"
-                     ng-repeat="data in placeRequest.vars.listPromotion | filter:{productName : placeRequest.vars.search}:strict">
-                    <ul class="bars">
-                        <li class="bars__bar">
-                            <div class="bars__info-logo">
-                                <img ng-if="data.imgPath" ng-src="https:/rhinozapp.herokuapp.com/files/imgProducts/{{data.imgPath}}"> {{data.productName}} | {{data.value | currency:'R$ ':2}} | {{data.promotionValue | currency:'R$ ':2}}
-
-                            </div>
-                            <div>
-                                <button ng-click="placeRequest.functions.controlRequest.addInGeneral(data)">+</button>
-                                {{data.amountInRequest}}
-                                <button ng-click="placeRequest.functions.controlRequest.removeToGeneral(data)">-</button>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div ng-repeat="data in placeRequest.vars.listByCategoryFilter">
-                    <div ng-if="data.products.length > 0">
-                        <h3>{{data.categoryName}}</h3>
+            <div class="bars__list" ng-repeat="data in placeRequest.vars.listPromotion | filter:placeRequest.vars.search:false">
+                <div class="bars__info-logo">
+                    <div class="bars__info-img">
+                        <img ng-if="data.imgPath" ng-src="{{data.imgPath}}">
                     </div>
+                    <p class="bars__info-name">
+                        {{data.productName}}
+                    </p>
+                    <div class="bars__info-cash">
+                        <span class="bars__info-value invalid">
+                            {{data.value | currency:'R$ ':2}}
+                        </span>
+                        <span class="bars__info-value-promo green">
+                            {{data.promotionValue | currency:' R$ ':2}}
+                        </span>
+                    </div>
+                </div>
+                <p class="bars__info-ingredients">
+                    {{ data.description }}
+                </p>
+                <div class="bars__request">
+                    <button class="bars__request-btn" ng-click="placeRequest.functions.controlRequest.removeToGeneral(data)">-</button>
+                    <span class="bars__request-number">
+                        {{data.amountInRequest}}
+                    </span>
+                    <button class="bars__request-btn" ng-click="placeRequest.functions.controlRequest.addInGeneral(data)">+</button>
+                </div>
+            </div>
 
-                    <div class="bars__list" ng-repeat="data2 in data.products | filter:{productName : placeRequest.vars.search}:strict">
-                        <ul class="bars" ng-click="placeRequest.functions.addProducts(data2)">
-                            <li class="bars__bar">
-                                <div class="bars__info">
-                                    <div class="bars__info-logo">
-                                        <img class="bars__info-img" ng-if="data2.imgPath" ng-src="https:/rhinozapp.herokuapp.com/files/imgProducts/{{data2.imgPath}}">
-                                    </div>
-                                    <div class="bars__info-description">
-                                        <p class="bars__info-name">
-                                            {{data2.productName}}
-                                        </p>
-                                        <span class="bars__info-value">
-                                        {{data2.value | currency:'R$ ':2}}
-                                    </span>
-                                        <span class="bars__info-value-promo">
-                                        {{data2.promotionValue | currency:'R$ ':2}}
-                                    </span>
-                                    <p class="bars__info-ingredients">
-                                        {{ data.description }}
-                                    </p>
-                                    </div>
+            <div ng-repeat="data in placeRequest.vars.listByCategoryFilter">
+                <div ng-if="data.products.length > 0 && !placeRequest.vars.search.$">
+                    <h3 class="place__category">{{data.categoryName}}</h3>
+                </div>
+                <div class="bars__list" ng-repeat="data2 in data.products | filter:placeRequest.vars.search:false">
+                    <div class="bars" ng-click="placeRequest.functions.addProducts(data2)">
+                        <div class="bars__info-logo">
+                            <div class="bars__info-img">
+                                <img ng-if="data2.imgPath" ng-src="{{data2.imgPath}}">
+                            </div>
+                            <p class="bars__info-name">
+                                {{data2.productName}}
+                            </p>
 
-                                    <div>
-                                        <button ng-click="placeRequest.functions.controlRequest.addInGeneral(data2)">+</button>
-                                        {{data2.amountInRequest}}
-                                        <button ng-click="placeRequest.functions.controlRequest.removeToGeneral(data2)">-</button>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
+                            <div class="bars__info-cash">
+                                <span class="bars__info-value-promo invalid">
+                                    {{data2.promotionValue | currency:'R$ ':2}}
+                                </span>
+                                <span class="bars__info-value green">
+                                    {{data2.value | currency:'R$ ':2}}
+                                </span>
+                            </div>
+                        </div>
+                        <p class="bars__info-ingredients">
+                            {{ data2.description }}
+                        </p>
+                    </div>
+                    <div class="bars__request">
+                        <button class="bars__request-btn" ng-click="placeRequest.functions.controlRequest.removeToGeneral(data2)">-</button>
+                        <span class="bars__request-number">
+                            {{data2.amountInRequest}}
+                        </span>
+                        <button class="bars__request-btn" ng-click="placeRequest.functions.controlRequest.addInGeneral(data2)">+</button>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section ng-if="placeRequest.vars.viewRequests">
-            <div>Resumo do pedido</div>
+    <section class="resume" ng-if="placeRequest.vars.viewRequests">
+        <div class="content">
+            <h2 class="resume__title">Resumo do pedido</h2>
 
-            <p>Data : {{placeRequest.vars.dataResume.dateCreate | date:'dd/MM/yyyy HH:mm'}}</p>
-            <p>Produtos</p>
-
-            <div ng-repeat="data in placeRequest.vars.listProducts">
-                <p>Produto: {{data.productName}} | Valor: {{data.value}} | Quantidade: {{data.amount}}</p>
+            <div class="resume__info-group">
+                <div class="resume__info-by-order">
+                    <div class="resume__tag-group">
+                        <span class="resume__tag">Data</span>
+                        <span class="resume__info">{{placeRequest.vars.dataResume.dateCreate | date:'dd/MM/yyyy'}}</span>
+                    </div>
+                    <div class="resume__tag-group">
+                        <span class="resume__tag">Hora</span>
+                        <span class="resume__info">{{placeRequest.vars.dataResume.dateCreate | date:'HH:mm'}}</span>
+                    </div>
+                </div>
             </div>
-            <div>
-                <p>Total : {{placeRequest.vars.total | currency:"R$"}}</p>
+
+            <div class="resume__info-group">
+                <div class="resume__info-by-order" ng-repeat="data in placeRequest.vars.listProducts">
+                    <div class="resume__tag-group">
+                        <span class="resume__tag">Produto</span>
+                        <span class="resume__info">{{data.productName}}</span>
+                    </div>
+                    <div class="resume__tag-group">
+                        <span class="resume__tag">Quantidade</span>
+                        <span class="resume__info">{{data.amount}}</span>
+                    </div>
+                    <div class="resume__tag-group">
+                        <span class="resume__tag">Valor</span>
+                        <span class="resume__info">R$ {{data.value}}</span>
+                    </div>
+                </div>
             </div>
-        </section>
-    </div>
+
+            <div class="resume__info-group">
+                <div class="resume__info-by-order">
+                    <div class="resume__tag-group">
+                        <span class="resume__tag">Total</span>
+                        <span class="resume__info">R$ {{placeRequest.vars.total | currency:"R$"}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </div>
